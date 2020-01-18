@@ -1,7 +1,7 @@
 /*
  * NextBike Alexa Skill
  *
- * Copyright © 2020 Carlos Sanchez Martin (carlos.samartin@gmail.com)
+ * Copyright ï¿½ 2020 Carlos Sanchez Martin (carlos.samartin@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class NextBikeLPARestClientTest {
 		NextBikeLPARestClient client = new NextBikeLPARestClient();
 		City city;
 		try {
-			city = client.getData();
+			city = client.getCityData();
 			assertTrue(city.getAlias().contentEquals("laspalmas"));
 		} catch (Exception e) {
 			fail(e.toString());

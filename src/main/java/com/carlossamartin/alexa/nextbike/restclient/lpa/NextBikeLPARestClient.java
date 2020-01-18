@@ -1,7 +1,7 @@
 /*
  * NextBike Alexa Skill
  *
- * Copyright © 2020 Carlos Sanchez Martin (carlos.samartin@gmail.com)
+ * Copyright ï¿½ 2020 Carlos Sanchez Martin (carlos.samartin@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ public class NextBikeLPARestClient {
 	private static final String LPA_UID = "408";
 	private static final String LPA_ALIAS = "laspalmas";
 
-	public City getData() throws Exception
+	public City getCityData() throws Exception
 	{
         NextBikeRestClient client = new NextBikeRestClient();
         NextBikeDataResponse response = client.getNextBikeDataResponseByCity(LPA_UID);

@@ -1,7 +1,7 @@
 /*
  * NextBike Alexa Skill
  *
- * Copyright © 2020 Carlos Sanchez Martin (carlos.samartin@gmail.com)
+ * Copyright ï¿½ 2020 Carlos Sanchez Martin (carlos.samartin@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Country {
 
 	@JsonProperty("lat")
-    private Float lat;
+    private Double lat;
 	
     @JsonProperty("lng")
-    private Float lng;
+    private Double lng;
 	
     @JsonProperty("name")
     private String name;
@@ -38,19 +38,19 @@ public class Country {
     private List<City> cities;
     
     
-	public Float getLat() {
+	public Double getLat() {
 		return lat;
 	}
 
-	public void setLat(Float lat) {
+	public void setLat(Double lat) {
 		this.lat = lat;
 	}
 
-	public Float getLng() {
+	public Double getLng() {
 		return lng;
 	}
 
-	public void setLng(Float lng) {
+	public void setLng(Double lng) {
 		this.lng = lng;
 	}
 
