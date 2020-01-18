@@ -19,7 +19,7 @@ package com.carlossamartin.alexa.nextbike.services;
 
 import java.awt.geom.Point2D;
 
-import org.apache.log4j.Logger;
+
 
 import com.carlossamartin.alexa.nextbike.model.nextbike.City;
 import com.carlossamartin.alexa.nextbike.model.nextbike.Place;
@@ -28,7 +28,6 @@ import com.carlossamartin.alexa.nextbike.tools.StringTool;
 
 public class NextBikeLPAService {
 
-	private final static Logger log = Logger.getLogger(NextBikeLPAService.class);
 	NextBikeLPARestClient client = new NextBikeLPARestClient();
 
 	public Place getPlaceByName(String name) {
@@ -46,9 +45,9 @@ public class NextBikeLPAService {
 				}
 			}
 		} catch (Exception e) {
-			log.error("Error.");
+			System.out.println("Error.");
 		}
-		System.out.println("factor:" + factor);
+		System.out.println("Debug. factor:" + factor);
 		return place;
 	}
 
@@ -66,13 +65,14 @@ public class NextBikeLPAService {
 				}
 			}
 		} catch (Exception e) {
-			log.error("Error.");
+			System.out.println("Error.");
 		}
-		log.debug("distance from origin: " + distance);
+		System.out.println("Debug. Distance from origin: " + distance);
 		return place;
 	}
 
 	private Double getDistance(Double x1, Double y1, Double x2, Double y2) {
 		return Point2D.distance(x1, y1, x2, y2);
 	}
+
 }
