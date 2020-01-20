@@ -19,7 +19,8 @@ package com.carlossamartin.alexa.nextbike.services;
 
 import java.awt.geom.Point2D;
 
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.carlossamartin.alexa.nextbike.model.nextbike.City;
 import com.carlossamartin.alexa.nextbike.model.nextbike.Place;
@@ -27,10 +28,12 @@ import com.carlossamartin.alexa.nextbike.restclient.lpa.NextBikeLPARestClient;
 import com.carlossamartin.alexa.nextbike.tools.StringTool;
 
 public class NextBikeLPAService {
-
+	
+    private static final Logger logger = LogManager.getLogger(NextBikeLPAService.class);
 	NextBikeLPARestClient client = new NextBikeLPARestClient();
 
 	public Place getPlaceByName(String name) {
+		logger.debug("getPlaceByName: " + name );
 		Place place = null;
 		Double factor = 0.0;
 		try {
@@ -38,16 +41,16 @@ public class NextBikeLPAService {
 			for (Place placeiter : city.getPlaces()) {
 				Double factoriter = StringTool.cosineSimilarity(StringTool.removeKindPath(name),
 						StringTool.removeKindPath(placeiter.getName().trim()));
-				System.out.println("place: " + placeiter.getName() + " factor: " + factoriter);
 				if (place == null || factoriter > factor) {
 					factor = factoriter;
 					place = placeiter;
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Error.");
+	        logger.error(e);
 		}
-		System.out.println("Debug. factor:" + factor);
+        logger.info("Factor: " + factor);
+        logger.info("Place: " + place.getName());
 		return place;
 	}
 
@@ -65,9 +68,10 @@ public class NextBikeLPAService {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Error.");
+			logger.error(e);
 		}
-		System.out.println("Debug. Distance from origin: " + distance);
+		logger.info("Distance from origin: " + distance);
+        logger.info("Place: " + place.getName());
 		return place;
 	}
 

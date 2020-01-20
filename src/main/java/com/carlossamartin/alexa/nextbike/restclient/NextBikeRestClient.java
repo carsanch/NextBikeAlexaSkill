@@ -1,7 +1,7 @@
 /*
  * NextBike Alexa Skill
  *
- * Copyright © 2020 Carlos Sanchez Martin (carlos.samartin@gmail.com)
+ * Copyright ï¿½ 2020 Carlos Sanchez Martin (carlos.samartin@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,34 +17,68 @@
  */
 package com.carlossamartin.alexa.nextbike.restclient;
 
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class NextBikeRestClient {
 
-    private static final String NEXT_BIKE_API_URL = "https://api.nextbike.net/maps/nextbike-official.json";
+	private static final Logger logger = LogManager.getLogger(NextBikeRestClient.class);
+	private static final String NEXT_BIKE_API_URL = "https://api.nextbike.net/maps/nextbike-official.json";
 
-    public NextBikeDataResponse getNextBikeDataResponseByCity(String cityId)
-    {
-        String url = NEXT_BIKE_API_URL;
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 
-        ResteasyClient client = new ResteasyClientBuilder().build();
-        ResteasyWebTarget target = client.target(UriBuilder.fromPath(url));
-        NextBikeClient proxy = target.proxy(NextBikeClient.class);
+	public NextBikeDataResponse getNextBikeDataResponseByCity(String cityId) {
 
-        Response response = proxy.getNextBikeDataByCity(cityId);
+		NextBikeDataResponse nextBikeDataResponse = null;
+		CloseableHttpClient httpclient = null;
+		CloseableHttpResponse response = null;
+		try {
+			URIBuilder builder = new URIBuilder(NEXT_BIKE_API_URL);
+			builder.setParameter("city", cityId);
 
+			httpclient = HttpClients.createDefault();
 
-        if (response.getStatus() != 200) {
-            throw new RuntimeException("Failed : HTTP error code : "
-                    + response.getStatus());
-        }
+			HttpGet httpGet = new HttpGet(builder.build());
+			httpGet.setHeader("Accept", "application/json");
+			httpGet.setHeader("Content-type", "application/json");
 
-        NextBikeDataResponse nextBikeDataResponse = response.readEntity(NextBikeDataResponse.class);
-        return nextBikeDataResponse;
-    }
+			logger.debug("Resquest to: " + httpGet.getURI());
+			response = httpclient.execute(httpGet);
+
+			logger.debug("response: " + response.getStatusLine().getStatusCode());
+			if (response.getStatusLine().getStatusCode() != 200) {
+				throw new RuntimeException("Failed : HTTP error code : " + response.getStatusLine().getStatusCode());
+			}
+
+			nextBikeDataResponse = objectMapper.readValue(response.getEntity().getContent(),
+					NextBikeDataResponse.class);
+
+		} catch (URISyntaxException e) {
+			logger.error(e);
+		} catch (ClientProtocolException e) {
+			logger.error(e);
+		} catch (IOException e) {
+			logger.error(e);
+		} catch (Exception e) {
+			logger.error(e);
+		} finally {
+			try {
+				response.close();
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		}
+		return nextBikeDataResponse;
+	}
 }

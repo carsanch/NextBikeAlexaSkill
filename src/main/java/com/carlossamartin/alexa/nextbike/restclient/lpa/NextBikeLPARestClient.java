@@ -17,36 +17,45 @@
  */
 package com.carlossamartin.alexa.nextbike.restclient.lpa;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.carlossamartin.alexa.nextbike.model.nextbike.City;
 import com.carlossamartin.alexa.nextbike.restclient.NextBikeDataResponse;
 import com.carlossamartin.alexa.nextbike.restclient.NextBikeRestClient;
 
 public class NextBikeLPARestClient {
 
+	private static final Logger logger = LogManager.getLogger(NextBikeLPARestClient.class);
+
 	private static final String LPA_UID = "408";
 	private static final String LPA_ALIAS = "laspalmas";
 
-	public City getCityData() throws Exception
-	{
-        NextBikeRestClient client = new NextBikeRestClient();
-        NextBikeDataResponse response = client.getNextBikeDataResponseByCity(LPA_UID);
-        
-        if(response.getCountries() == null || response.getCountries().size() < 1)
-        {
-        	throw new Exception();
-        }
-        
-        if(response.getCountries().get(0).getCities() == null || response.getCountries().get(0).getCities().size() < 1 )
-        {
-        	throw new Exception();
-        }
-        
-        City city = response.getCountries().get(0).getCities().get(0);
-        if(!LPA_ALIAS.equals(city.getAlias()))
-        {
-        	throw new Exception();
-        }   
-        
+	public City getCityData() throws Exception {
+		logger.debug("Start getCityData");
+
+		NextBikeRestClient client = new NextBikeRestClient();
+		NextBikeDataResponse response = client.getNextBikeDataResponseByCity(LPA_UID);
+
+		if (response == null) {
+			throw new Exception("No response");
+		}
+
+		if (response.getCountries() == null || response.getCountries().size() < 1) {
+			throw new Exception("No country has been obtained.");
+		}
+
+		if (response.getCountries().get(0).getCities() == null
+				|| response.getCountries().get(0).getCities().size() < 1) {
+			throw new Exception("No city has been obtained.");
+		}
+
+		City city = response.getCountries().get(0).getCities().get(0);
+		if (!LPA_ALIAS.equals(city.getAlias())) {
+			throw new Exception("The city obtained does not correspond to the requested one.");
+		}
+
+		logger.info("City: " + city.getName());
 		return city;
 	}
 }

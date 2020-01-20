@@ -17,15 +17,11 @@
  */
 package com.carlossamartin.alexa.nextbike.restclient;
 
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.text.diff.EditScript;
 import org.apache.commons.text.diff.StringsComparator;
-import org.apache.commons.text.similarity.CosineSimilarity;
 import org.junit.Test;
 
 public class NextBikeDataRestClientTest {
@@ -45,24 +41,4 @@ public class NextBikeDataRestClientTest {
 
 		assertEquals(4, mod);
 	}
-
-	@Test
-	public void testCosine() {
-		String textDelimiter = " ";
-		//String documentA = "We have to choose some coffee. Which one is not important to me.";
-		//String documentB = "We have to choose coffee by it's beans. Darker beans looks better to me.";
-		String documentA = "Estación de San Telmo";
-		String documentB = "San Telmo";
-		CosineSimilarity documentsSimilarity = new CosineSimilarity();
-
-		Map<CharSequence, Integer> vectorA = Arrays.stream(documentA.split(textDelimiter))
-				.collect(Collectors.toMap(character -> character, character -> 1, Integer::sum));
-		Map<CharSequence, Integer> vectorB = Arrays.stream(documentB.split(textDelimiter))
-				.collect(Collectors.toMap(character -> character, character -> 1, Integer::sum));
-
-		Double docABCosSimilarity = documentsSimilarity.cosineSimilarity(vectorA, vectorB);
-
-		System.out.printf("%4.3fn", docABCosSimilarity);
-	}
-
 }
