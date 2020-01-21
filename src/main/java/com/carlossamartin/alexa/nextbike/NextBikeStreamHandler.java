@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import com.amazon.ask.Skill;
 import com.amazon.ask.SkillStreamHandler;
 import com.amazon.ask.Skills;
+import com.carlossamartin.alexa.nextbike.handlers.BikesByLocationIntent;
 import com.carlossamartin.alexa.nextbike.handlers.BikesByStationNameIntent;
 import com.carlossamartin.alexa.nextbike.handlers.CancelandStopIntentHandler;
 import com.carlossamartin.alexa.nextbike.handlers.HelpIntentHandler;
@@ -18,8 +19,11 @@ public class NextBikeStreamHandler extends SkillStreamHandler {
 
 	@SuppressWarnings("unchecked")
 	private static Skill getSkill() {
-		return Skills.standard().addRequestHandlers(new CancelandStopIntentHandler(), new BikesByStationNameIntent(),
-				new HelpIntentHandler(), new LaunchRequestHandler(), new SessionEndedRequestHandler()).build();
+		return Skills.standard()
+				.addRequestHandlers(new CancelandStopIntentHandler(), new BikesByStationNameIntent(),
+						new BikesByLocationIntent(), new HelpIntentHandler(), new LaunchRequestHandler(),
+						new SessionEndedRequestHandler())
+				.build();
 	}
 
 	public NextBikeStreamHandler() {
