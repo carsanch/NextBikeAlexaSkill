@@ -1,3 +1,20 @@
+/*
+ * NextBike Alexa Skill
+ *
+ * Copyright © 2020 Carlos Sanchez Martin (carlos.samartin@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.carlossamartin.alexa.nextbike.handlers;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
@@ -11,6 +28,7 @@ import com.amazon.ask.request.Predicates;
 import com.amazon.ask.response.ResponseBuilder;
 import com.carlossamartin.alexa.nextbike.model.nextbike.Place;
 import com.carlossamartin.alexa.nextbike.services.NextBikeLPAService;
+import com.carlossamartin.alexa.nextbike.tools.GeoTool;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -24,6 +42,7 @@ public class BikesByLocationIntent implements RequestHandler {
 	private NextBikeLPAService service = new NextBikeLPAService();
 
 	private static final String GEO_PERMISSION = "alexa::devices:all:geolocation:read";
+	private static final double LIMIT_DISTANCE = 5000;
 
 	@Override
 	public boolean canHandle(HandlerInput input) {
@@ -88,10 +107,20 @@ public class BikesByLocationIntent implements RequestHandler {
 
 		String nameStationPlace = place.getName().trim();
 		Integer bikes = place.getBikes();
+		
+		double distance = GeoTool.distanceFromToInMeters(location.getLatitudeInDegrees(), location.getLongitudeInDegrees(), place.getLat(), place.getLng());
 
 		StringBuilder stb = new StringBuilder();
-		stb.append("Hay disponibles ").append(bikes).append(" bicicletas en la estación ").append(nameStationPlace)
-				.append(".");
+		if(distance > LIMIT_DISTANCE)
+		{
+			stb.append("La estación más cercana está a más de ").append(LIMIT_DISTANCE).append(" metros.");
+		}
+		else
+		{
+			stb.append("Hay disponibles ").append(bikes).append(" bicicletas en la estación ").append(nameStationPlace)
+			.append(".");
+		}
+		
 
 		return stb.toString();
 	}
