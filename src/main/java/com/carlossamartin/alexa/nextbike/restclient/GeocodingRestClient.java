@@ -40,7 +40,7 @@ public class GeocodingRestClient {
 
 	private static final String GEOCODING_API_URL = "https://maps.googleapis.com/maps/api/geocode/json";
 	
-	private static final String CONFIG_FILE = "config.properties";
+	private static final String SECURITY_FILE = "security.properties";
 	private static final String GOOGLE_GEOCODING_APIKEY = "google.geocoding.apikey";
 
 	private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -98,7 +98,7 @@ public class GeocodingRestClient {
 	}
 
 	private String getApiKey() throws IOException {
-		InputStream input = GeocodingRestClient.class.getClassLoader().getResourceAsStream(CONFIG_FILE);
+		InputStream input = GeocodingRestClient.class.getClassLoader().getResourceAsStream(SECURITY_FILE);
 		Properties prop = new Properties();
 
 		if (input == null) {
