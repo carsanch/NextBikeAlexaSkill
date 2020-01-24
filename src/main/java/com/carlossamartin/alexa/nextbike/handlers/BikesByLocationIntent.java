@@ -17,6 +17,12 @@
  */
 package com.carlossamartin.alexa.nextbike.handlers;
 
+import java.util.Arrays;
+import java.util.Optional;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.amazon.ask.model.PermissionStatus;
@@ -24,25 +30,26 @@ import com.amazon.ask.model.Permissions;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.model.interfaces.geolocation.Coordinate;
 import com.amazon.ask.model.interfaces.geolocation.GeolocationState;
+import com.amazon.ask.model.services.deviceAddress.Address;
+import com.amazon.ask.model.services.deviceAddress.DeviceAddressServiceClient;
 import com.amazon.ask.request.Predicates;
 import com.amazon.ask.response.ResponseBuilder;
+import com.carlossamartin.alexa.nextbike.model.google.Location;
 import com.carlossamartin.alexa.nextbike.model.nextbike.Place;
+import com.carlossamartin.alexa.nextbike.services.GeocodingService;
 import com.carlossamartin.alexa.nextbike.services.NextBikeLPAService;
 import com.carlossamartin.alexa.nextbike.tools.GeoTool;
-
-import java.util.Arrays;
-import java.util.Optional;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class BikesByLocationIntent implements RequestHandler {
 
 	static final Logger logger = LogManager.getLogger(BikesByLocationIntent.class);
-	private NextBikeLPAService service = new NextBikeLPAService();
+	private NextBikeLPAService nextBikeLPAService = new NextBikeLPAService();
+	private GeocodingService geocodingService = new GeocodingService();
 
 	private static final String GEO_PERMISSION = "alexa::devices:all:geolocation:read";
 	private static final double LIMIT_DISTANCE = 5000;
+
+	public static final String ALL_ADDRESS_PERMISSION = "read::alexa:device:all:address";
 
 	@Override
 	public boolean canHandle(HandlerInput input) {
@@ -53,11 +60,13 @@ public class BikesByLocationIntent implements RequestHandler {
 	public Optional<Response> handle(HandlerInput input) {
 		logger.debug("Start BikesByLocationIntent");
 		logger.debug("Request Envelope: " + input.getRequestEnvelopeJson());
-		
+
 		ResponseBuilder response = input.getResponseBuilder();
 
 		if (deviceSupportsGeolocation(input)) {
 			return handleAtCurrentLocation(input, response);
+		} else if (hasServiceAddressPermission(input)) {
+			return handleAtAddress(input, response);
 		} else {
 			return handleAskForLocation(response);
 		}
@@ -87,6 +96,38 @@ public class BikesByLocationIntent implements RequestHandler {
 				.getGeolocation() != null;
 	}
 
+	private boolean hasServiceAddressPermission(HandlerInput input) {
+
+		Permissions permissions = input.getRequestEnvelope().getSession().getUser().getPermissions();
+		return permissions != null && permissions.getScopes() != null
+				&& permissions.getScopes().get(ALL_ADDRESS_PERMISSION) != null
+				&& permissions.getScopes().get(ALL_ADDRESS_PERMISSION).getStatus() == PermissionStatus.GRANTED;
+	}
+
+	private Optional<Response> handleAtAddress(HandlerInput input, ResponseBuilder response) {
+
+		Permissions permission = input.getRequestEnvelope().getContext().getSystem().getUser().getPermissions();
+		if (permission != null) {
+			String deviceId = input.getRequestEnvelope().getContext().getSystem().getDevice().getDeviceId();
+			DeviceAddressServiceClient deviceAddressServiceClient = input.getServiceClientFactory()
+					.getDeviceAddressService();
+			Address address = deviceAddressServiceClient.getFullAddress(deviceId);
+			if (address == null) {
+				return say(
+						"Parece que no tienes una dirección establecida. Puede configurar su dirección desde la aplicación Amazon Alexa.",
+						response);
+			} else {
+				String addressMessage = address.getAddressLine1() + " " + address.getStateOrRegion() + " "
+						+ address.getPostalCode();
+				return say(getCurrentLocation(addressMessage).map(this::searchBikes)
+						.orElse("No pudimos obtener tu localización."), response);
+
+			}
+		} else {
+			return say("Habilite los permisos de ubicación en la aplicación Amazon Alexa.", response);
+		}
+	}
+
 	private boolean hasGeolocationPermission(HandlerInput input) {
 		Permissions permissions = input.getRequestEnvelope().getSession().getUser().getPermissions();
 		return permissions != null && permissions.getScopes() != null
@@ -102,27 +143,36 @@ public class BikesByLocationIntent implements RequestHandler {
 		return Optional.ofNullable(geo.getCoordinate());
 	}
 
-	private String searchBikes(Coordinate location) {
+	private Optional<Location> getCurrentLocation(String address) {
+		Location location = geocodingService.getLocationByAddress(address);
+		return Optional.ofNullable(location);
+	}
 
-		logger.info("Device coordinates: " + location.getLatitudeInDegrees() + " " + location.getLongitudeInDegrees());
-		Place place = service.getPlaceByLocation(location.getLatitudeInDegrees(), location.getLongitudeInDegrees());
+	private String searchBikes(Coordinate coordinate) {
+		return searchBikes(coordinate.getLatitudeInDegrees(), coordinate.getLongitudeInDegrees());
+	}
+
+	private String searchBikes(Location location) {
+		return searchBikes(location.getLat(), location.getLng());
+	}
+
+	private String searchBikes(Double latitude, Double longitude) {
+
+		logger.info("Device coordinates: " + latitude + " " + longitude);
+		Place place = nextBikeLPAService.getPlaceByLocation(latitude, longitude);
 
 		String nameStationPlace = place.getName().trim();
 		Integer bikes = place.getBikes();
-		
-		double distance = GeoTool.distanceFromToInMeters(location.getLatitudeInDegrees(), location.getLongitudeInDegrees(), place.getLat(), place.getLng());
+
+		double distance = GeoTool.distanceFromToInMeters(longitude, longitude, place.getLat(), place.getLng());
 
 		StringBuilder stb = new StringBuilder();
-		if(distance > LIMIT_DISTANCE)
-		{
+		if (distance > LIMIT_DISTANCE) {
 			stb.append("La estación más cercana está a más de ").append(LIMIT_DISTANCE).append(" metros.");
-		}
-		else
-		{
+		} else {
 			stb.append("Hay disponibles ").append(bikes).append(" bicicletas en la estación ").append(nameStationPlace)
-			.append(".");
+					.append(".");
 		}
-		
 
 		return stb.toString();
 	}

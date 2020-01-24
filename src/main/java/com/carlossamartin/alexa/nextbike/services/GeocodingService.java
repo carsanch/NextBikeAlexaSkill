@@ -15,37 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.carlossamartin.alexa.nextbike.services;
 
-package com.carlossamartin.alexa.nextbike.model.google;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import com.carlossamartin.alexa.nextbike.model.google.Location;
+import com.carlossamartin.alexa.nextbike.restclient.GeocodingRestClient;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+public class GeocodingService {
+	private static final Logger logger = LogManager.getLogger(GeocodingService.class);
+	private GeocodingRestClient geoClient = new GeocodingRestClient();
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Location {
-    @JsonProperty("lat")
-    private Double lat;
+	public Location getLocationByAddress(String address) {
+		//TODO Make check logic.
+		return geoClient.getLocationByAddress(address);
+	}
 
-    @JsonProperty("lng")
-    private Double lng;
-
-    public Location() {
-    }
-
-    public Double getLat() {
-        return lat;
-    }
-
-    public void setLat(Double lat) {
-        this.lat = lat;
-    }
-
-    public Double getLng() {
-        return lng;
-    }
-
-    public void setLng(Double lng) {
-        this.lng = lng;
-    }
 }

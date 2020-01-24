@@ -17,7 +17,7 @@
  */
 package com.carlossamartin.alexa.nextbike.restclient;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -32,8 +32,8 @@ public class GeocodingRestClientTest {
 		
 		System.out.println("Lat: "+ out.getLat() + " Long: " + out.getLng());
 		assertTrue(out != null);
-		assertTrue(out.getLat().equals(28.102966F));
-		assertTrue(out.getLng().equals(-15.41441F));
+		assertTrue(out.getLat().equals(28.102966));
+		assertTrue(out.getLng().equals(-15.41441));
 	}
 
 }
