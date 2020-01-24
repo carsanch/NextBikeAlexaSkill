@@ -1,7 +1,7 @@
 /*
  * NextBike Alexa Skill
  *
- * Copyright © 2020 Carlos Sanchez Martin (carlos.samartin@gmail.com)
+ * Copyright ÔøΩ 2020 Carlos Sanchez Martin (carlos.samartin@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,8 @@ public class BikesByLocationIntent implements RequestHandler {
 	@Override
 	public Optional<Response> handle(HandlerInput input) {
 		logger.debug("Start BikesByLocationIntent");
+		logger.debug("Request Envelope: " + input.getRequestEnvelopeJson());
+		
 		ResponseBuilder response = input.getResponseBuilder();
 
 		if (deviceSupportsGeolocation(input)) {
@@ -62,16 +64,16 @@ public class BikesByLocationIntent implements RequestHandler {
 	}
 
 	private Optional<Response> handleAskForLocation(ResponseBuilder response) {
-		return say("Su dispositivo no soporta localizaciÛn.", response);
+		return say("Su dispositivo no soporta localizaci√≥n.", response);
 	}
 
 	private Optional<Response> handleAtCurrentLocation(HandlerInput input, ResponseBuilder response) {
 		if (hasGeolocationPermission(input)) {
-			return say(getCurrentLocation(input).map(this::searchBikes).orElse("No pudimos obtener tu localizaciÛn."),
+			return say(getCurrentLocation(input).map(this::searchBikes).orElse("No pudimos obtener tu localizaci√≥n."),
 					response);
 		} else {
 			askForPermissionIfDenied(response);
-			return say("No tenemos permiso para obtener tu localizaciÛn.", response);
+			return say("No tenemos permiso para obtener tu localizaci√≥n.", response);
 		}
 	}
 
@@ -113,11 +115,11 @@ public class BikesByLocationIntent implements RequestHandler {
 		StringBuilder stb = new StringBuilder();
 		if(distance > LIMIT_DISTANCE)
 		{
-			stb.append("La estaciÛn m·s cercana est· a m·s de ").append(LIMIT_DISTANCE).append(" metros.");
+			stb.append("La estaci√≥n m√°s cercana est√° a m√°s de ").append(LIMIT_DISTANCE).append(" metros.");
 		}
 		else
 		{
-			stb.append("Hay disponibles ").append(bikes).append(" bicicletas en la estaciÛn ").append(nameStationPlace)
+			stb.append("Hay disponibles ").append(bikes).append(" bicicletas en la estaci√≥n ").append(nameStationPlace)
 			.append(".");
 		}
 		

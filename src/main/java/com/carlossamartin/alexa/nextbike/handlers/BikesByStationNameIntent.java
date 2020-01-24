@@ -29,6 +29,8 @@ public class BikesByStationNameIntent implements IntentRequestHandler {
 	@Override
 	public Optional<Response> handle(HandlerInput input, IntentRequest intentRequest) {
 		logger.debug("Start BikesByStationNameIntent");
+		logger.debug("Request Envelope: " + input.getRequestEnvelopeJson());
+		
 		ResponseBuilder response = input.getResponseBuilder();
 		
 		Intent intent = intentRequest.getIntent();
@@ -40,7 +42,7 @@ public class BikesByStationNameIntent implements IntentRequestHandler {
 		Integer bikes = place.getBikes();
 
 		StringBuilder stb = new StringBuilder();
-		stb.append("Hay disponibles ").append(bikes).append(" bicicletas en la estación ").append(nameStationPlace)
+		stb.append("Hay disponibles ").append(bikes).append(" bicicletas en la estaciÃ³n ").append(nameStationPlace)
 				.append(".");
 
 		String speechText = stb.toString();
