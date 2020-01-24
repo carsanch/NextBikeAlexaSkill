@@ -59,6 +59,7 @@
 				<directory>src/main/resources</directory>
 				<includes>
 					<include>log4j2.xml</include>
+					<include>config.properties</include>
 				</includes>
 			</resource>
 		</resources>
