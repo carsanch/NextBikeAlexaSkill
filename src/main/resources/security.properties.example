@@ -1,2 +1,4 @@
+## You must to fill in this file and rename to .properties.  ##
+
 ## Rest Clients Properties ##
 google.geocoding.apikey=YOUR GOOGLE API KEY\!\!
