@@ -87,7 +87,7 @@ public class BikesByLocationIntent implements RequestHandler {
 	}
 
 	private Optional<Response> say(String speechText, ResponseBuilder response) {
-		response.withSpeech(speechText).withSimpleCard("Sitycleta", speechText).withReprompt(speechText);
+		response.withSpeech(speechText).withSimpleCard("Sitycleta", speechText);
 		return response.build();
 	}
 
@@ -99,32 +99,23 @@ public class BikesByLocationIntent implements RequestHandler {
 	private boolean hasServiceAddressPermission(HandlerInput input) {
 
 		Permissions permissions = input.getRequestEnvelope().getSession().getUser().getPermissions();
-		return permissions != null && permissions.getScopes() != null
-				&& permissions.getScopes().get(ALL_ADDRESS_PERMISSION) != null
-				&& permissions.getScopes().get(ALL_ADDRESS_PERMISSION).getStatus() == PermissionStatus.GRANTED;
+		return permissions != null;
 	}
 
 	private Optional<Response> handleAtAddress(HandlerInput input, ResponseBuilder response) {
-
-		Permissions permission = input.getRequestEnvelope().getContext().getSystem().getUser().getPermissions();
-		if (permission != null) {
-			String deviceId = input.getRequestEnvelope().getContext().getSystem().getDevice().getDeviceId();
-			DeviceAddressServiceClient deviceAddressServiceClient = input.getServiceClientFactory()
-					.getDeviceAddressService();
-			Address address = deviceAddressServiceClient.getFullAddress(deviceId);
-			if (address == null) {
-				return say(
-						"Parece que no tienes una dirección establecida. Puede configurar su dirección desde la aplicación Amazon Alexa.",
-						response);
-			} else {
-				String addressMessage = address.getAddressLine1() + " " + address.getStateOrRegion() + " "
-						+ address.getPostalCode();
-				return say(getCurrentLocation(addressMessage).map(this::searchBikes)
-						.orElse("No pudimos obtener tu localización."), response);
-
-			}
+		String deviceId = input.getRequestEnvelope().getContext().getSystem().getDevice().getDeviceId();
+		DeviceAddressServiceClient deviceAddressServiceClient = input.getServiceClientFactory()
+				.getDeviceAddressService();
+		Address address = deviceAddressServiceClient.getFullAddress(deviceId);
+		if (address == null) {
+			return say(
+					"Parece que no tienes una dirección establecida. Puede configurar su dirección desde la aplicación Amazon Alexa.",
+					response);
 		} else {
-			return say("Habilite los permisos de ubicación en la aplicación Amazon Alexa.", response);
+			String addressMessage = address.getAddressLine1() + " " + address.getStateOrRegion() + " "
+					+ address.getPostalCode();
+			return say(getCurrentLocation(addressMessage).map(this::searchBikes)
+					.orElse("No pudimos obtener tu localización."), response);
 		}
 	}
 
@@ -164,11 +155,11 @@ public class BikesByLocationIntent implements RequestHandler {
 		String nameStationPlace = place.getName().trim();
 		Integer bikes = place.getBikes();
 
-		double distance = GeoTool.distanceFromToInMeters(longitude, longitude, place.getLat(), place.getLng());
+		double distance = GeoTool.distanceFromToInMeters(latitude, longitude, place.getLat(), place.getLng());
 
 		StringBuilder stb = new StringBuilder();
 		if (distance > LIMIT_DISTANCE) {
-			stb.append("La estación más cercana está a más de ").append(LIMIT_DISTANCE).append(" metros.");
+			stb.append("La estación más cercana está a más de ").append((int)LIMIT_DISTANCE).append(" metros.");
 		} else {
 			stb.append("Hay disponibles ").append(bikes).append(" bicicletas en la estación ").append(nameStationPlace)
 					.append(".");

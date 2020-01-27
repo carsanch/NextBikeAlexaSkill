@@ -1,5 +1,10 @@
 package com.carlossamartin.alexa.nextbike.handlers;
 
+import java.util.Optional;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.impl.IntentRequestHandler;
 import com.amazon.ask.model.Intent;
@@ -10,11 +15,6 @@ import com.amazon.ask.request.Predicates;
 import com.amazon.ask.response.ResponseBuilder;
 import com.carlossamartin.alexa.nextbike.model.nextbike.Place;
 import com.carlossamartin.alexa.nextbike.services.NextBikeLPAService;
-
-import java.util.Optional;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class BikesByStationNameIntent implements IntentRequestHandler {
 
@@ -50,7 +50,7 @@ public class BikesByStationNameIntent implements IntentRequestHandler {
 	}
 	
 	private Optional<Response> say(String speechText, ResponseBuilder response) {
-		response.withSpeech(speechText).withSimpleCard("Sitycleta", speechText).withReprompt(speechText);
+		response.withSpeech(speechText).withSimpleCard("Sitycleta", speechText);
 		return response.build();
 	}
 
